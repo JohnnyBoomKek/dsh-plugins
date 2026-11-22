@@ -1,0 +1,4 @@
+- insert:
+    - id: strawberry-latte
+      name: '@local/strawberry-latte'
+      config: {}
