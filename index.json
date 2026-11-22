@@ -1,0 +1,67 @@
+{
+  "format": 1,
+  "title": {
+    "en": "john kek's Harness plugins"
+  },
+  "description": {
+    "en": "OpenCodex usage gauge and a Strawberry Latte theme for DeepSeek Harness."
+  },
+  "plugins": [
+    {
+      "name": "@local/ocx-usage",
+      "title": {
+        "en": "OCX usage"
+      },
+      "description": {
+        "en": "Read-only OpenCodex token totals and quota: a coloured sidebar gauge, a limits popover with reset times, and a full breakdown tab."
+      },
+      "icon": "plugins/ocx-usage/icon.svg",
+      "author": "john kek",
+      "homepage": "https://github.com/JohnnyBoomKek/dsh-plugins",
+      "repository": {
+        "url": "https://github.com/JohnnyBoomKek/dsh-plugins",
+        "directory": "plugins/ocx-usage"
+      },
+      "versions": [
+        {
+          "version": "1.0.0",
+          "publishTimestamp": 1795335013,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/JohnnyBoomKek/dsh-plugins",
+            "commit": "bd59096aaf225f0a8e711cde59c4cac7c957879a",
+            "path": "plugins/ocx-usage"
+          }
+        }
+      ]
+    },
+    {
+      "name": "@local/strawberry-latte",
+      "title": {
+        "en": "Strawberry Latte"
+      },
+      "description": {
+        "en": "Warm ivory and blush-pink palette for the Harness Web client, in light and dark."
+      },
+      "icon": "plugins/strawberry-latte/icon.svg",
+      "author": "john kek",
+      "homepage": "https://github.com/JohnnyBoomKek/dsh-plugins",
+      "repository": {
+        "url": "https://github.com/JohnnyBoomKek/dsh-plugins",
+        "directory": "plugins/strawberry-latte"
+      },
+      "versions": [
+        {
+          "version": "1.0.0",
+          "publishTimestamp": 1795335013,
+          "source": {
+            "type": "git",
+            "url": "https://github.com/JohnnyBoomKek/dsh-plugins",
+            "commit": "bd59096aaf225f0a8e711cde59c4cac7c957879a",
+            "path": "plugins/strawberry-latte"
+          }
+        }
+      ]
+    }
+  ]
+}
