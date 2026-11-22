@@ -31,17 +31,31 @@ export function createReader({ executable, signal, run = async args => {
   return JSON.parse(stdout);
 }, now = Date.now, cooldownMs = 60_000 } = {}) {
   let pending, cached, completedAt;
-  return function snapshot() {
+  /** True when OCX's cached observation predates a window's own reset. */
+  const expiresBeforeNow = quota => (quota?.accounts ?? []).some(account =>
+    (account.windows ?? []).some(w => w.resetAt !== null && w.resetAt <= now()));
+  return function snapshot(options = {}) {
+    const force = options?.force === true;
     if (pending) return pending;
-    if (cached && now() - completedAt < cooldownMs) return Promise.resolve(cached);
+    if (!force && cached && now() - completedAt < cooldownMs) return Promise.resolve(cached);
     pending = (async () => {
       const result = { usage: { today: null, last7Days: null }, quota: null, errors: {} };
+      const readQuota = async () => {
+        if (!force) {
+          const cachedReport = quotaReport(await run(['account', 'list', '--quota', '--json']), now());
+          if (!expiresBeforeNow(cachedReport)) return cachedReport;
+        }
+        return quotaReport(await run(['account', 'list', '--quota', '--refresh', '--json']), now());
+      };
       await Promise.all([
         ['today', ['usage', '--range', 'today', '--json'], v => { result.usage.today = usageReport(v); }],
         ['last7Days', ['usage', '--range', '7d', '--json'], v => { result.usage.last7Days = usageReport(v); }],
-        ['quota', ['account', 'list', '--quota', '--json'], v => { result.quota = quotaReport(v, now()); }],
+        ['quota', null, null],
       ].map(async ([key, args, apply]) => {
-        try { apply(await run(args)); } catch { result.errors[key] = 'OpenCodex data unavailable. Check that OCX is running and signed in.'; }
+        try {
+          if (key === 'quota') result.quota = await readQuota();
+          else apply(await run(args));
+        } catch { result.errors[key] = 'OpenCodex data unavailable. Check that OCX is running and signed in.'; }
       }));
       cached = result;
       completedAt = now();

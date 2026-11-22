@@ -41,8 +41,10 @@ export function apply(ctx, config) {
     path: route,
     methods: ['GET'],
     requestBody: 'buffered',
-    async fetch() {
-      return Response.json(await read(), { headers: { 'cache-control': 'no-store' } });
+    async fetch(request) {
+      let force = false;
+      try { force = new URL(request.url, 'http://localhost').searchParams.get('refresh') === '1'; } catch { force = false; }
+      return Response.json(await read({ force }), { headers: { 'cache-control': 'no-store' } });
     },
   }), 'OCX usage snapshot route');
 }

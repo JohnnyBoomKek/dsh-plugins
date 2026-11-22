@@ -42,3 +42,39 @@ test('concurrent fetches share work, throttle provider probes, and isolate failu
   await read();
   assert.equal(calls, 6);
 });
+
+test('a window whose reset already passed re-observes with --refresh', async () => {
+  const now = 2_000_000_000_000;
+  const calls = [];
+  const read = createReader({ now: () => now, run: async args => {
+    calls.push(args.join(' '));
+    if (args[0] === 'account') {
+      const refreshed = args.includes('--refresh');
+      return { accounts: [{ provider: 'openai', active: true, quota: {
+        shortPercent: refreshed ? 12 : 0,
+        shortResetAt: refreshed ? now / 1000 + 9_000 : now / 1000 - 60,
+      } }] };
+    }
+    return { summary: {}, models: [] };
+  } });
+  const snapshot = await read();
+  assert.deepEqual(calls.filter(c => c.startsWith('account')), [
+    'account list --quota --json',
+    'account list --quota --refresh --json',
+  ]);
+  assert.equal(snapshot.quota.accounts[0].windows[0].percentUsed, 12);
+});
+
+test('force skips the local cache and asks OCX to re-observe', async () => {
+  let now = 1_000, calls = 0;
+  const read = createReader({ now: () => now, run: async args => {
+    if (args[0] === 'account') { calls++; return { accounts: [] } }
+    return { summary: {}, models: [] };
+  } });
+  await read();
+  assert.equal(calls, 1, 'first read observes once');
+  await read();
+  assert.equal(calls, 1, 'cached read does not observe again');
+  await read({ force: true });
+  assert.equal(calls, 2, 'forced read observes again');
+});

@@ -41,6 +41,7 @@ window.__ModuleLoader__.load({
     "credits": "Credits",
     "manage": "Manage usage",
     "resetsAt": "Resets",
+    "asOf": "as of",
     "left": "left",
     "details": "Open full usage breakdown",
     "detailsUnavailable": "Open a conversation to see the full breakdown."
@@ -84,6 +85,7 @@ window.__ModuleLoader__.load({
     "credits": "额度",
     "manage": "管理用量",
     "resetsAt": "重置",
+    "asOf": "截至",
     "left": "可用",
     "details": "打开完整用量明细",
     "detailsUnavailable": "请打开对话以查看完整明细。"
@@ -166,6 +168,7 @@ window.__ModuleLoader__.load({
           },[])
           const [state,setState] = React.useState('loading')
           const [generation,requestRefresh] = React.useReducer(n => n + 1,0)
+          const forceNext = React.useRef(false)
           React.useEffect(() => {
             const controller = new AbortController()
             let active = true
@@ -173,7 +176,9 @@ window.__ModuleLoader__.load({
             const timer = setTimeout(() => { controller.abort(); if (active) setState('failed') },25_000)
             void (async () => {
               try {
-                const response = await fetch('api/ocx-usage/snapshot',{signal:controller.signal,cache:'no-store',credentials:'same-origin',headers:{accept:'application/json'}})
+                const suffix = forceNext.current ? '?refresh=1' : ''
+                forceNext.current = false
+                const response = await fetch(`api/ocx-usage/snapshot${suffix}`,{signal:controller.signal,cache:'no-store',credentials:'same-origin',headers:{accept:'application/json'}})
                 if (!response.ok) throw new Error('snapshot request failed')
                 const next = await response.json()
                 if (!next || typeof next !== 'object' || (!next.usage && !next.quota && !next.errors)) throw new Error('invalid snapshot')
@@ -184,7 +189,7 @@ window.__ModuleLoader__.load({
             })()
             return () => { active = false; clearTimeout(timer); controller.abort() }
           },[generation])
-          return { data, now, state, refresh: () => { setState('loading'); requestRefresh() } }
+          return { data, now, state, refresh: () => { forceNext.current = true; setState('loading'); requestRefresh() } }
         }
         function Glance({ wide }) {
           const { data, now, state, refresh } = useSnapshot()
@@ -272,7 +277,9 @@ window.__ModuleLoader__.load({
               style:{position:'fixed',top:'auto',right:'auto',margin:0,width:268,maxWidth:'calc(100vw - 24px)',maxHeight:'min(520px, calc(100dvh - 24px))',overflow:'auto',boxSizing:'border-box',
                 padding:'13px 18px 8px',borderRadius:14,border:`0.5px solid ${token('border-l1')}`,background:token('bg-layer-1'),
                 color:token('label-primary'),fontSize:'0.93em',lineHeight:1.4,boxShadow:'var(--dsw-shadow-lv3)'}},
-              h('div',{id:'ocx-quota-heading',style:{color:token('label-secondary'),paddingBottom:11}},`${t('usageSource')}: ${planName}`),
+              h('div',{id:'ocx-quota-heading',style:{color:token('label-secondary'),paddingBottom:11}},
+                `${t('usageSource')}: ${planName}`,
+                data?.quota?.fetchedAt ? h('span',null,` \u00b7 ${t('asOf')} ${time(data.quota.fetchedAt)}`) : null),
               rule('top'),
               lines(rowsOf(primary),'p'),
               others.length ? h(React.Fragment,null,
