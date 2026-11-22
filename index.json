@@ -24,12 +24,12 @@
       },
       "versions": [
         {
-          "version": "1.0.0",
-          "publishTimestamp": 1795335013,
+          "version": "1.0.1",
+          "publishTimestamp": 1795352071,
           "source": {
             "type": "git",
             "url": "https://github.com/JohnnyBoomKek/dsh-plugins",
-            "commit": "bd59096aaf225f0a8e711cde59c4cac7c957879a",
+            "commit": "b6f9c37d14e89bb4d4a28c46f5473efb61b89892",
             "path": "plugins/ocx-usage"
           }
         }
@@ -53,11 +53,11 @@
       "versions": [
         {
           "version": "1.0.0",
-          "publishTimestamp": 1795335013,
+          "publishTimestamp": 1795352071,
           "source": {
             "type": "git",
             "url": "https://github.com/JohnnyBoomKek/dsh-plugins",
-            "commit": "bd59096aaf225f0a8e711cde59c4cac7c957879a",
+            "commit": "b6f9c37d14e89bb4d4a28c46f5473efb61b89892",
             "path": "plugins/strawberry-latte"
           }
         }
